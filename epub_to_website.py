@@ -89,11 +89,13 @@ if os.path.isfile(ntpath.join(outputDir, TOC)):
     
         html = ET.Element('html')
         head = ET.Element('head')
+        meta = ET.Element('meta', attrib={'http-equiv': "Content-Type", "content":"text/html;charset=utf-8"})
         title = ET.Element('title')
         title.text = titleContent
         body = ET.Element('body')
         h1 = ET.Element('h1')
         h1.text = titleContent
+        head.append(meta)
         head.append(title)
         body.append(h1)
         html.append(head)
@@ -105,7 +107,7 @@ if os.path.isfile(ntpath.join(outputDir, TOC)):
             div.append(a)
             body.append(div)
     
-        ET.ElementTree(html).write(open(ntpath.join(outputDir, 'index.html'), 'w'), encoding='unicode',
+        ET.ElementTree(html).write(open(ntpath.join(outputDir, 'index.html'), 'wb'), encoding='utf-8',
                              method='html')
 
 else:
