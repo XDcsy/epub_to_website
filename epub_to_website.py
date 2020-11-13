@@ -9,6 +9,7 @@ validDirTypes = ("Images", "Styles", "Text")
 OEBPS = "OEBPS"
 TOC = "toc.ncx"
 TOC_ENCODING = "UTF-8"
+CSS = ".container-div {width: 800px;margin: 0 auto}.link-div {margin-top:15px; margin-bottom:15px; margin-left:20px}a{text-decoration:none;}a:link,a:visited{text-decoration:none;}"
 
 # a directory in the .epub file is valid(needed) when:
 # it is toc.ncx file OR it is /OEBPS/{validDirTypes}
@@ -92,20 +93,25 @@ if os.path.isfile(ntpath.join(outputDir, TOC)):
         meta = ET.Element('meta', attrib={'http-equiv': "Content-Type", "content":"text/html;charset=utf-8"})
         title = ET.Element('title')
         title.text = titleContent
+        style = ET.Element('style')
+        style.text = CSS
         body = ET.Element('body')
+        container_div = ET.Element('div', attrib={'class': "container-div"})
         h1 = ET.Element('h1')
         h1.text = titleContent
         head.append(meta)
         head.append(title)
-        body.append(h1)
+        head.append(style)
+        container_div.append(h1)
         html.append(head)
+        body.append(container_div)
         html.append(body)
         for p in pageContent:
-            div = ET.Element('div')
+            div = ET.Element('div', attrib={'class': "link-div"})
             a = ET.Element('a', attrib={'href': p[0]})
             a.text = p[1]
             div.append(a)
-            body.append(div)
+            container_div.append(div)
     
         ET.ElementTree(html).write(open(ntpath.join(outputDir, 'index.html'), 'wb'), encoding='utf-8',
                              method='html')
