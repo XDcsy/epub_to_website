@@ -37,8 +37,8 @@ if not fileName.endswith(".epub"):
     print("File format not supported")
     
 else:
-    # outputDir = "./"
-    outputDir = fileName.replace(".epub", "")
+    outputDir = "./"
+    # outputDir = fileName.replace(".epub", "")
     
 
     with ZipFile(inputFilePath, 'r') as zipObj:
