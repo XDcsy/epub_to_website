@@ -124,7 +124,7 @@ if __name__ == '__main__':
     OEBPS = "OEBPS"
     TOC = "toc.ncx"
     TOC_ENCODING = "UTF-8"
-    CSS = "html{font-size:24px;}h1{font-size:2em;margin-top:30px;}@media(min-width:576px){html{font-size:26px;	}.container-div{width:95%;margin:0 auto;}}@media(min-width:768px){html{font-size:32px;	}.container-div{width:95%;margin:0 auto;}}@media(min-width:992px){html{font-size:20px;	}.container-div{width:70%;margin:0 auto;}}@media(min-width:1200px){html{font-size:16px;	}.container-div{width:70%;margin:0 auto;}}.link-div{margin-top:15px;margin-bottom:15px;margin-left:20px;}a{text-decoration:none;}a:link,a:visited{text-decoration:none;}"
+    CSS = "html{font-size:24px;}h1{font-size:2em;margin-top:30px;}@media(min-width:576px){html{font-size:30px;	}.container-div{width:95%;margin:0 auto;}}@media(min-width:768px){html{font-size:38px;	}.container-div{width:95%;margin:0 auto;}}@media(min-width:992px){html{font-size:20px;	}.container-div{width:70%;margin:0 auto;}}@media(min-width:1200px){html{font-size:16px;	}.container-div{width:70%;margin:0 auto;}}.link-div{margin-top:15px;margin-bottom:15px;margin-left:20px;}a{text-decoration:none;}a:link,a:visited{text-decoration:none;}"
 
     inputFilePath = sys.argv[1]
     epubToWebsite(inputFilePath, validDirTypes, OEBPS, TOC, TOC_ENCODING, CSS, newFolder = False)
