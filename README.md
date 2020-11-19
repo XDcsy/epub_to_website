@@ -18,7 +18,7 @@ Or if you prefer to call it in Python:
 
 ``` Python3
 from epub_to_website import epubToWebsite
-epubToWebsite("path/to/epub/file",\
+epubToWebsite(inputFilePath = "path/to/epub/file",\
               CSS = "body {width: 1200px} ...",\
               newFolder = True,\
               withTime = True,\
