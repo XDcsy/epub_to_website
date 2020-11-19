@@ -35,6 +35,21 @@ def generateTitle(docTitle):
     titleName = docTitle[0].getElementsByTagName("text")[0]
     return getText(titleName.childNodes)
     
+def generateDate(p):
+    for pNode in p:
+        if pNode.getAttribute("class") == "date":
+            return getText(pNode.childNodes)
+    return ""
+    
+def generatePreview(p, previewMaxLen):
+    for pNode in p:
+        if pNode.getAttribute("class") != "date":
+            preview = getText(pNode.childNodes)
+            if len(preview) > previewMaxLen:
+                preview = preview[:previewMaxLen] + "  ......"
+            return preview
+    return ""
+    
 def getPageName(navLabel):
     pageName = navLabel[0].getElementsByTagName("text")[0]
     return getText(pageName.childNodes)
@@ -57,7 +72,10 @@ def epubToWebsite(inputFilePath,\
                     TOC = "toc.ncx",\
                     TOC_ENCODING = "UTF-8",\
                     CSS = "",\
-                    newFolder = False):
+                    newFolder = False,\
+                    withTime = False,\
+                    withPreview = False,\
+                    previewMaxLen = 300):
                     
     fileName = ntpath.basename(inputFilePath)
     if not fileName.endswith(".epub"):
@@ -106,12 +124,32 @@ def epubToWebsite(inputFilePath,\
             html.append(head)
             body.append(container_div)
             html.append(body)
+            pageURLs = []
             for p in pageContent:
-                div = ET.Element('div', attrib={'class': "link-div"})
                 a = ET.Element('a', attrib={'href': p[0]})
-                a.text = p[1]
-                div.append(a)
-                container_div.append(div)
+                div = ET.Element('div', attrib={'class': "link-div"})
+                pHeadlineNode = ET.Element('p', attrib={'class': "headline"})
+                pHeadlineNode.text = p[1]
+                div.append(pHeadlineNode)
+                a.append(div)
+                
+                if withTime or withPreview:
+                    with minidom.parse(p[0]) as fdom:
+                        if withPreview:
+                            preview = generatePreview(fdom.getElementsByTagName("p"), previewMaxLen)
+                            if len(preview) > 0:
+                                pPreviewNode = ET.Element('p', attrib={'class': "preview"})
+                                pPreviewNode.text = preview
+                                div.append(pPreviewNode)
+                        if withTime:
+                            date = generateDate(fdom.getElementsByTagName("p"))
+                            if len(date) > 0:
+                                pDateNode = ET.Element('p', attrib={'class': "date"})
+                                pDateNode.text = date
+                                div.append(pDateNode)
+
+                container_div.append(a)
+
     
             ET.ElementTree(html).write(open(ntpath.join(outputDir, 'index.html'), 'wb'), encoding='utf-8',
                              method='html')
@@ -124,7 +162,7 @@ if __name__ == '__main__':
     OEBPS = "OEBPS"
     TOC = "toc.ncx"
     TOC_ENCODING = "UTF-8"
-    CSS = "html{font-size:24px;}h1{font-size:2em;margin-top:30px;}@media(min-width:576px){html{font-size:30px;	}.container-div{width:95%;margin:0 auto;}}@media(min-width:768px){html{font-size:38px;	}.container-div{width:95%;margin:0 auto;}}@media(min-width:992px){html{font-size:20px;	}.container-div{width:70%;margin:0 auto;}}@media(min-width:1200px){html{font-size:16px;	}.container-div{width:70%;margin:0 auto;}}.link-div{margin-top:15px;margin-bottom:15px;margin-left:20px;}a{text-decoration:none;}a:link,a:visited{text-decoration:none;}"
+    CSS = "html{font-size:24px;background-color:#f3f3f3}h1{font-size:2em;margin-top:30px;}.container-div{margin:0 auto;margin-bottom:4em}@media(min-width:576px){html{font-size:30px;}.container-div{width:95%;}}@media(min-width:768px){html{font-size:30px;}.container-div{width:95%;}}@media(min-width:992px){html{font-size:20px;}.container-div{width:70%;}}@media(min-width:1200px){html{font-size:16px;}.container-div{width:70%;}}.link-div{color:black;margin-top:15px;margin-bottom:15px;margin-left:20px;margin-bottom:20px;border-radius:5px;box-shadow:1px 1px 5px 0 rgba(0,0,0,0.02), 1px 1px 15px 0 rgba(0,0,0,0.03);transition:transform 0.3s, background-color 0.3s, box-shadow 0.6s;transition-property:transform, background-color, box-shadow;transition-duration:0.3s, 0.3s, 0.6s;transition-timing-function:ease, ease, ease;transition-delay:0s, 0s, 0s;padding:10px;}.link-div:hover{transform: translateY(-5px);box-shadow: 1px 10px 30px 0 rgba(0,0,0,0.2);}a{text-decoration:none;opacity: 0;}a:link,a:visited{text-decoration:none;}.headline{font-size:1.3em;font-weight: 450;line-height: 1.125;color:black;}.date{font-size:0.8em;color:gray;}.preview{color:#50596c}"
 
     inputFilePath = sys.argv[1]
-    epubToWebsite(inputFilePath, validDirTypes, OEBPS, TOC, TOC_ENCODING, CSS, newFolder = False)
+    epubToWebsite(inputFilePath, validDirTypes, OEBPS, TOC, TOC_ENCODING, CSS, newFolder = False, withTime = True, withPreview = True, previewMaxLen = 300)
