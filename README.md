@@ -32,12 +32,12 @@ epubToWebsite(inputFilePath = "path/to/epub/file",\
 #     unpack to the current directory or create a new folder.
 #     If True, folder name will be the title of the epub.
 #
-# withTime:
+# withTime (default: True):
 #     display date on index page (if avaliable)
 #
-# withPreview:
+# withPreview (default: True):
 #     display article on index page
 #
-# previewMaxLen:
-#     max number of characters to be displayed for preview 
+# previewMaxLen (default: 300):
+#     max number of characters displayed in each preview 
 ```
