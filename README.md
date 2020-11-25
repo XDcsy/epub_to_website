@@ -23,21 +23,25 @@ epubToWebsite(inputFilePath = "path/to/epub/file",\
               newFolder = True,\
               withTime = True,\
               withPreview = True,\
+              reversedOrder = True,\
               previewMaxLen = 300)
 
 # CSS:
-#     your custom CSS to use for generating index.html
+#     Your custom CSS to use for generating index.html
 #
 # newFolder:
-#     unpack to the current directory or create a new folder.
+#     Unpack to the current directory or create a new folder.
 #     If True, folder name will be the title of the epub.
 #
 # withTime:
-#     display date on index page (if avaliable)
+#     Display date on index page (if avaliable)
 #
 # withPreview:
-#     display article on index page
+#     Display article previews on index page
+#
+# reversedOrder:
+#     Display articles in reversed order. Suitable for blogs
 #
 # previewMaxLen:
-#     max number of characters displayed in each preview 
+#     Max number of characters displayed in each preview 
 ```
