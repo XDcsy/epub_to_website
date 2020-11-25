@@ -75,6 +75,7 @@ def epubToWebsite(inputFilePath,\
                     newFolder = False,\
                     withTime = False,\
                     withPreview = False,\
+                    reversedOrder = False,\
                     previewMaxLen = 300):
                     
     fileName = ntpath.basename(inputFilePath)
@@ -125,6 +126,10 @@ def epubToWebsite(inputFilePath,\
             body.append(container_div)
             html.append(body)
             pageURLs = []
+            
+            if reversedOrder:
+                pageContent = reversed(pageContent)
+            
             for p in pageContent:
                 a = ET.Element('a', attrib={'href': p[0]})
                 div = ET.Element('div', attrib={'class': "link-div"})
@@ -165,4 +170,4 @@ if __name__ == '__main__':
     CSS = "html{font-size:24px;background-color:#f3f3f3}h1{font-size:2em;margin-top:30px;}.container-div{margin:0 auto;margin-bottom:4em}@media(min-width:576px){html{font-size:30px;}.container-div{width:95%;}}@media(min-width:768px){html{font-size:30px;}.container-div{width:95%;}}@media(min-width:992px){html{font-size:20px;}.container-div{width:70%;}}@media(min-width:1200px){html{font-size:16px;}.container-div{width:70%;}}.link-div{background-color:white;color:black;margin-top:15px;margin-bottom:15px;margin-left:20px;margin-bottom:20px;border-radius:5px;box-shadow:1px 1px 5px 0 rgba(0,0,0,0.02), 1px 1px 15px 0 rgba(0,0,0,0.03);transition:transform 0.3s, background-color 0.3s, box-shadow 0.6s;transition-property:transform, background-color, box-shadow;transition-duration:0.3s, 0.3s, 0.6s;transition-timing-function:ease, ease, ease;transition-delay:0s, 0s, 0s;padding:10px;}.link-div:hover{transform: translateY(-5px);box-shadow: 1px 10px 30px 0 rgba(0,0,0,0.2);}a{text-decoration:none;opacity: 0;}a:link,a:visited{text-decoration:none;}.headline{font-size:1.3em;font-weight: 450;line-height: 1.125;color:black;}.date{font-size:0.8em;color:gray;}.preview{color:#50596c}"
 
     inputFilePath = sys.argv[1]
-    epubToWebsite(inputFilePath, validDirTypes, OEBPS, TOC, TOC_ENCODING, CSS, newFolder = False, withTime = True, withPreview = True, previewMaxLen = 300)
+    epubToWebsite(inputFilePath, validDirTypes, OEBPS, TOC, TOC_ENCODING, CSS, newFolder = False, withTime = True, withPreview = True, reversedOrder = True, previewMaxLen = 300)
