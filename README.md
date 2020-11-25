@@ -28,7 +28,7 @@ epubToWebsite(inputFilePath = "path/to/epub/file",\
 # CSS:
 #     your custom CSS to use for generating index.html
 #
-# newFolder (default: False):
+# newFolder:
 #     unpack to the current directory or create a new folder.
 #     If True, folder name will be the title of the epub.
 #
@@ -39,5 +39,5 @@ epubToWebsite(inputFilePath = "path/to/epub/file",\
 #     display article on index page
 #
 # previewMaxLen:
-#     max number of characters to be displayed for preview 
+#     max number of characters displayed in each preview 
 ```
