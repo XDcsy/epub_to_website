@@ -176,7 +176,7 @@ def epubToWebsite(inputFilePath,\
                 tagCounter = Counter(tags)
                 tagsSort = tagCounter.most_common()
                 allBtn = ET.Element('button', attrib={'class': "tag", "id": "All"})
-                allBtn.text = "All"+" (" + str(len(tag)) + ")"
+                allBtn.text = "ALL"+" (" + str(len(tags)) + ")"
                 tag_div.append(allBtn)
                 for (tag, freq) in tagsSort:
                     tagBtn = ET.Element('button', attrib={'class': "tag", "id": tag})
