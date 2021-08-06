@@ -3,7 +3,7 @@
 ## Feature
 It unpacks an epub ebook to a website-like sturcture with an auto-generated index page, which can then be directly opened (and hosted) as a website.
 
-You may use it to host epub books / notes / blogs ... on the Internet. For example (my blog): https://xdcsy.github.io/
+You may use it to host epub books on the Internet. For example (my blog): https://xdcsy.github.io/
 
 Or you may just open the index page locally, and your browser can then be used as an epub reader.
 
