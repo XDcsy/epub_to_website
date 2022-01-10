@@ -4,6 +4,8 @@ import os
 from zipfile import ZipFile
 from xml.dom import minidom
 from xml.etree import ElementTree as ET
+import configparser
+from shutil import copy
 
 # a directory in the .epub file is valid(needed) when:
 # it is toc.ncx file OR it is /OEBPS/{validDirTypes}
@@ -72,18 +74,22 @@ def generatePages(navPoint):
         content = p.getElementsByTagName("content")
         pages.append((getPageSrc(content), getPageName(navLabel)))
     return pages
+
+def addPageCSS():
+    return
     
 def epubToWebsite(inputFilePath,\
                     validDirTypes = ("Images", "Styles", "Text"),\
                     OEBPS = "OEBPS",\
                     TOC = "toc.ncx",\
-                    TOC_ENCODING = "UTF-8",\
-                    CSS = "",\
+                    epubEncoding = "utf-8",\
+                    indexCSS = "index.css",\
+                    pageCSS = "",\
                     newFolder = False,\
                     withTime = False,\
                     withPreview = False,\
-                    reversedOrder = False,\
                     withTag = False,\
+                    reversedOrder = False,\
                     previewMaxLen = 300):
                     
     fileName = ntpath.basename(inputFilePath)
@@ -92,7 +98,7 @@ def epubToWebsite(inputFilePath,\
     
     else:
         if newFolder:
-            outputDir = fileName.replace(".epub", "")
+            outputDir = fileName.replace(".epub", "") + "/"
         else:
             outputDir = "./"
     
@@ -120,8 +126,7 @@ def epubToWebsite(inputFilePath,\
             meta = ET.Element('meta', attrib={'http-equiv': "Content-Type", "content":"text/html;charset=utf-8"})
             title = ET.Element('title')
             title.text = titleContent
-            style = ET.Element('style')
-            style.text = CSS
+            style = ET.Element('link', attrib={'rel':'stylesheet', 'href':indexCSS})
             body = ET.Element('body')
             container_div = ET.Element('div', attrib={'class': "container-div"})
             tag_div = ET.Element('div')
@@ -136,7 +141,6 @@ def epubToWebsite(inputFilePath,\
             html.append(head)
             body.append(container_div)
             html.append(body)
-            pageURLs = []
             
             if reversedOrder:
                 pageContent = reversed(pageContent)
@@ -150,8 +154,10 @@ def epubToWebsite(inputFilePath,\
                 div.append(pHeadlineNode)
                 a.append(div)
                 
+                # if any of the conditions blow is True, we need to parse the html pages in the epub
+                xhtmlFile = outputDir + p[0]
                 if withTime or withPreview or withTag:
-                    with minidom.parse(p[0]) as fdom:
+                    with minidom.parse(xhtmlFile) as fdom:
                         if withPreview:
                             preview = generatePreview(fdom.getElementsByTagName("p"), previewMaxLen)
                             if len(preview) > 0:
@@ -170,6 +176,20 @@ def epubToWebsite(inputFilePath,\
                                 a.set("data-tag", tag)
                                 tags.extend([t.strip() for t in tag.split(',')])
                 container_div.append(a)
+
+                # if pageCSS is not empty, we need to add one <link> tag to the html pages
+                if len(pageCSS) > 0:
+                    # pageCSS is accessed from within ./Text
+                    innerPageCSS = "../" + pageCSS
+                    with open(xhtmlFile, 'r+', encoding=epubEncoding) as f:
+                        # add it directly after the <head> tag
+                        fileContent = f.read()
+                        link = '<link rel="stylesheet" href="'+innerPageCSS+'"></link>'
+                        fileContent = fileContent.replace("<head>","<head>"+link,1)
+                        # overwirte
+                        f.seek(0)
+                        f.write(fileContent)
+                        f.truncate()
             
             if withTag:
                 from collections import Counter
@@ -189,15 +209,40 @@ def epubToWebsite(inputFilePath,\
             ET.ElementTree(html).write(open(ntpath.join(outputDir, 'index.html'), 'wb'), encoding='utf-8',
                              method='html')
 
+            # if the epub is extracted to a new folder, we need to copy js and css files to the new path
+            if newFolder:
+                copy("index.js", outputDir)
+                copy(indexCSS, outputDir)
+                copy(pageCSS, outputDir)
+
+
+
     else:
         print("please add toc.ncx fallback to epub3")
 
 if __name__ == '__main__':
+    # read run.properties file
+    config = configparser.ConfigParser()
+    config.read('run.properties')
+    newFolder = int(config['configs']['newFolder'])
+    withTime = int(config['configs']['withTime'])
+    withPreview = int(config['configs']['withPreview'])
+    previewMaxLen = int(config['configs']['previewMaxLen'])
+    withTag = int(config['configs']['withTag'])
+    reversedOrder = int(config['configs']['reversedOrder'])
+    epubEncoding = config['configs']['epubEncoding']
+    indexCSS = config['configs']['indexCSS']
+
+    if config.has_option('optional', 'pageCSS'):
+        pageCSS = config['optional']['pageCSS']
+    else:
+        pageCSS = ""
+
+    # built-in properties
     validDirTypes = ("Images", "Styles", "Text")
     OEBPS = "OEBPS"
     TOC = "toc.ncx"
-    TOC_ENCODING = "UTF-8"
-    CSS = "html{font-size:24px;background-color:#f3f3f3}h1{font-size:2em;margin-top:30px;}.container-div{margin:0 auto;margin-bottom:4em}@media(min-width:576px){html{font-size:30px;}.container-div{width:95%;}}@media(min-width:768px){html{font-size:30px;}.container-div{width:95%;}}@media(min-width:992px){html{font-size:20px;}.container-div{width:70%;}}@media(min-width:1200px){html{font-size:16px;}.container-div{width:70%;}}.link-div{background-color:white;color:black;margin-top:15px;margin-bottom:15px;margin-bottom:20px;border-radius:5px;box-shadow:1px 1px 5px 0 rgba(0,0,0,0.02), 1px 1px 15px 0 rgba(0,0,0,0.03);transition:transform 0.3s, background-color 0.3s, box-shadow 0.6s;transition-property:transform, background-color, box-shadow;transition-duration:0.3s, 0.3s, 0.6s;transition-timing-function:ease, ease, ease;transition-delay:0s, 0s, 0s;padding:10px;}.link-div:hover{transform: translateY(-5px);box-shadow: 1px 10px 30px 0 rgba(0,0,0,0.2);}a{text-decoration:none;}a:link,a:visited{text-decoration:none;}.headline{font-size:1.3em;font-weight: 450;line-height: 1.125;color:black;}.date{font-size:0.8em;color:gray;}.preview{color:#50596c}button.tag{margin: 0.35em;font-size: 1em;background-color: #f4f4f4;padding: 0.25rem 0.6rem 0.25rem 0.6rem;border-radius: 5px;border: 1px solid #6c757d;transition-duration: 0.4s;outline:none;}button.tag:hover{cursor:pointer;background-color:#6c757d !important;color:white !important;}"
 
+    # inputFilePath = "test.epub"
     inputFilePath = sys.argv[1]
-    epubToWebsite(inputFilePath, validDirTypes, OEBPS, TOC, TOC_ENCODING, CSS, newFolder = False, withTime = True, withPreview = True, withTag = True, reversedOrder = True, previewMaxLen = 300)
+    epubToWebsite(inputFilePath, validDirTypes, OEBPS, TOC, epubEncoding, indexCSS, pageCSS, newFolder, withTime, withPreview, withTag, reversedOrder, previewMaxLen)
